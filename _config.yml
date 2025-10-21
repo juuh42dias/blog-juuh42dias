@@ -19,7 +19,7 @@ feed:
   path: /blog/feed.atom
 
 author: juuh42dias
-picture: assets/images/juliana.jpg
+picture: https://avatars.githubusercontent.com/u/1828204?v=4
 
 whitelist:
   - jekyll-redirect-from
