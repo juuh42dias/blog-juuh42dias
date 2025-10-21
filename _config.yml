@@ -46,7 +46,7 @@ defaults:
 
 # baseurl: ""
 permalink: /blog/:slug
-timezone: America/New_York
+timezone: America/Sao_Paulo
 future: false
 
 exclude:
@@ -58,11 +58,11 @@ exclude: [vendor]
 Blog: /blog
 
 # Add general links to site pages here
-links:
-  Resume: https://www.linkedin.com/in/juuh42dias/
+# links:
   # Resume: /assets/resume.pdf
 
 
 # Add links for more focus here
 special_links:
+  "Resume": https://www.linkedin.com/in/juuh42dias/
   "Search": https://duckduckgo.com
