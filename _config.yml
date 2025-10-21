@@ -13,6 +13,13 @@ url: "https://blog.juliana.dev" # the base hostname & protocol for your site
 
 plugins:
   - jekyll-redirect-from
+  - jekyll-feed
+
+feed:
+  path: /blog/feed.atom
+
+author: juuh42dias
+picture: /assets/images/juliana.jpg
 
 whitelist:
   - jekyll-redirect-from
