@@ -4,11 +4,11 @@ body {
     padding: 20px;
     max-width: 720px;
     text-align: left;
-    background-color: #fff;
+    background-color: #f8f8f8;
     word-wrap: break-word;
     overflow-wrap: break-word;
     line-height: 1.5;
-    color: #444;
+    color: #1e1e1e;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -32,17 +32,17 @@ h5,
 h6,
 strong,
 b {
-    color: #222;
+    color: #1e1e1e;
 }
 
 a {
-    color: #3273dc;
+    color: #2d4a6b;
     cursor: pointer;
     text-decoration: none;
 }
 
 a:hover {
-    text-decoration: underline; 
+    text-decoration: underline;
 }
 
 .title {
@@ -143,16 +143,16 @@ img {
 code {
     font-family: monospace;
     padding: 2px;
-    background-color: #f2f2f2;
-    color: #222;
+    background-color: #e8e8e8;
+    color: #1e1e1e;
     border-radius: 3px;
 }
 
 .highlight,
 .code {
     padding: 1px 15px;
-    background-color: #f2f2f2;
-    color: #222;
+    background-color: #e8e8e8;
+    color: #1e1e1e;
     border-radius: 3px;
     margin-block-start: 1em;
     margin-block-end: 1em;
@@ -160,8 +160,8 @@ code {
 }
 
 blockquote {
-    border-left: 1px solid #999;
-    color: #222;
+    border-left: 1px solid #6a6a6a;
+    color: #1e1e1e;
     padding-left: 20px;
     font-style: italic;
 }
@@ -279,8 +279,8 @@ ul.discover-posts li small a {
 
 @media (prefers-color-scheme: dark) {
     body {
-        background-color: #01242e;
-        color: #ddd;
+        background-color: #1e1e1e;
+        color: #e0e0e0;
     }
 
     h1,
@@ -291,27 +291,35 @@ ul.discover-posts li small a {
     h6,
     strong,
     b {
-        color: #eee;
+        color: #f0f0f0;
     }
 
     a {
-        color: #8cc2dd;
+        color: #7aa2f7;
     }
 
     code {
-        background-color: #777;
+        background-color: #2d2d2d;
+        color: #e0e0e0;
+    }
+
+    .highlight,
+    .code {
+        background-color: #2d2d2d;
+        color: #e0e0e0;
     }
 
     pre code {
-        color: #ddd;
+        color: #e0e0e0;
     }
 
     blockquote {
-        color: #ccc;
+        color: #c0c0c0;
+        border-left-color: #4a4a4a;
     }
 
     .helptext {
-        color: #aaa;
+        color: #8a8a8a;
     }
 }
 

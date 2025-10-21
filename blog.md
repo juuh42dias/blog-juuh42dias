@@ -1,8 +1,8 @@
 ---
 layout: blog
-title: Blog
-description: Here be writings
+title: Juliana Dias Blog
+description: DEVaneios
 permalink: /blog
 ---
 
-Here be writings. Mostly mundane, sometimes fanciful.
+DEVaneios
