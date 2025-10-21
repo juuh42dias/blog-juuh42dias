@@ -3,7 +3,7 @@ layout: default
 title: Senior Ruby Software Engineer | Ruby Specialist & Technical Reviewer – Packt | Admin @ RubyBrasil | Event Organizer & Community Leader
 ---
 ![](/assets/images/keynote.jpeg)
-## Juliana Dias
+## Who am I
 
 Hello! I'm **Juliana Dias** — a Senior Ruby Software Engineer, Technical Reviewer at **Packt**, and long-time community leader at **Ruby Brasil**.
 For more than 12 years, I’ve been building software, mentoring developers, and helping the Ruby community grow across Brazil.
