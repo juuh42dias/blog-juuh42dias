@@ -1,6 +1,7 @@
 ---
 layout: default
-title: Senior Ruby Software Engineer | Ruby Specialist & Technical Reviewer – Packt | Admin @ RubyBrasil | Event Organizer & Community Leader
+title: The Blog
+description: Ruby Software Craftswoman | Admin at t.me/RubyBrasil | She/Ela | Made in Goiás
 ---
 ![](/assets/images/keynote.jpeg)
 ### Who am I
