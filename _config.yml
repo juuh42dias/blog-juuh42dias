@@ -1,0 +1,55 @@
+title: Juliana Dias
+description: Ruby Software Craftswoman | Admin at t.me/RubyBrasil | She/Ela | Made in Goiás
+url: "https://blog.juliana.dev"
+
+plugins:
+  - jekyll-redirect-from
+  - jekyll-feed
+
+feed:
+  path: /blog/feed.atom
+
+author: juuh42dias
+picture: https://avatars.githubusercontent.com/u/1828204?v=4
+
+markdown: kramdown
+
+compress_html:
+  clippings: all
+  comments: [""]
+  endings: [html, head, body, li, dt, dd, rt, rp, optgroup, option, colgroup, caption, thead, tbody, tfoot, tr, td, th]
+  profile: false
+  blanklines: false
+  ignore:
+    envs: []
+
+collections:
+  my_tags:
+    output: true
+    permalink: /tagged/:slug/
+defaults:
+  -
+    scope:
+      path: ""
+      type: my_tags
+    values:
+      layout: tagged
+
+permalink: /blog/:slug
+timezone: America/Sao_Paulo
+future: false
+
+exclude:
+  - README.md
+  - LICENSE.md
+  - vendor
+  - Gemfile
+  - Gemfile.lock
+  - build.sh
+  - "*.old"
+
+Blog: /blog
+
+special_links:
+  "Resume": https://www.linkedin.com/in/juuh42dias/
+  "Search": https://duckduckgo.com
