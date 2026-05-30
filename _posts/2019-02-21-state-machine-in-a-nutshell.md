@@ -9,13 +9,6 @@ canonical_url: https://dev.to/juuh42dias/state-machine-in-a-nutshell-13o2
 source: dev.to
 ---
 
----
-title: State Machine in a nutshell
-published: true
-description: "Sometimes we need to apply a state in some cases when we want to modify a status of an object. A basic example is water state: gaseous, liquid and solid and the events responsible for change it"
-tags: ruby, state machine, water 
----
-
 Sometimes we need to apply a state in some cases when we want to modify a status of an object. A basic example is water state: gaseous, liquid and solid and the events responsible for change it:
 
 ```ruby
