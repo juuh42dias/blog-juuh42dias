@@ -61,33 +61,13 @@ Temporal's architecture has three main pieces:
 
 **Workers** — The processes that host and execute Workflows and Activities. Workers poll the Temporal Server for tasks and execute them.
 
-```mermaid
-flowchart LR
-    C[Client] -->|start_workflow| TS[Temporal Server]
-    TS -->|task| W[Worker]
-    W --> WF[Workflows<br>orchestration]
-    W --> ACT[Activities<br>business logic]
-    WF --> ACT
-    ACT --> DB[(Database)]
-    ACT --> API[External APIs]
-```
+<img src="/assets/svg/temporal-architecture.svg" alt="Temporal Architecture" style="max-width: 100%; height: auto; display: block; margin: 20px auto;">
 
 ## Let's see some code
 
 The classic example is a money transfer between two bank accounts. Here's how it looks with the Temporal Ruby SDK.
 
-```mermaid
-flowchart TD
-    START([Start Transfer]) --> WITHDRAW[Withdraw<br>from Source Account]
-    WITHDRAW --> SUCCESS{Success?}
-    SUCCESS -->|Yes| DEPOSIT[Deposit<br>into Target Account]
-    SUCCESS -->|No| RETRY[Retry Policy]
-    RETRY --> WITHDRAW
-    DEPOSIT --> DONE{Success?}
-    DONE -->|Yes| COMPLETE([Transfer Complete])
-    DONE -->|No| REFUND[Refund<br>to Source Account]
-    REFUND --> COMPLETE
-```
+<img src="/assets/svg/money-transfer-workflow.svg" alt="Money Transfer Workflow" style="max-width: 100%; height: auto; display: block; margin: 20px auto;">
 
 First, we define the shared data structure and custom errors:
 

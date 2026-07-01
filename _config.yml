@@ -5,13 +5,6 @@ url: "https://blog.juliana.dev"
 plugins:
   - jekyll-redirect-from
   - jekyll-feed
-  - jekyll-mermaid-prebuild
-
-mermaid_prebuild:
-  enabled: true
-  output_dir: assets/svg
-  prefers-color-scheme:
-    mode: light
 
 feed:
   path: /blog/feed.atom
