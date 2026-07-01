@@ -151,12 +151,24 @@ code {
 .highlight,
 .code {
     padding: 1px 15px;
-    background-color: #e8e8e8;
+    background-color: #f0f0f0;
     color: #1e1e1e;
     border-radius: 3px;
     margin-block-start: 1em;
     margin-block-end: 1em;
-    overflow:auto;
+    overflow: auto;
+}
+
+.highlight pre,
+.code pre {
+    margin: 0;
+    line-height: 1.3;
+}
+
+.highlight code,
+.code code {
+    background-color: transparent;
+    padding: 0;
 }
 
 blockquote {
@@ -314,10 +326,6 @@ small a {
 
 .highlight table td { padding: 5px; }
 .highlight table pre { margin: 0; }
-.highlight, .highlight .w {
-  color: #24292f;
-  background-color: #f6f8fa;
-}
 .highlight .k, .highlight .kd, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kt, .highlight .kv {
   color: #cf222e;
 }
