@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 530" width="100%" style="max-width: 500px; display: block;">
+  <style>
+    text { font-family: Verdana, sans-serif; font-size: 13px; fill: #1e1e1e; text-anchor: middle; }
+    .box { fill: #f0f0f0; stroke: #1e1e1e; stroke-width: 1.5; rx: 5; }
+    .pill { fill: #f0f0f0; stroke: #1e1e1e; stroke-width: 1.5; rx: 22; }
+    .arrow { stroke: #1e1e1e; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .ds { font-size: 11px; fill: #555; }
+    .lb { font-size: 11px; fill: #1e1e1e; }
+  </style>
+  <defs>
+    <marker id="a" fill="#1e1e1e" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z"/></marker>
+  </defs>
+
+  <!-- Start -->
+  <rect class="pill" x="175" y="5" width="150" height="44"/>
+  <text x="250" y="32">Start Transfer</text>
+
+  <line class="arrow" x1="250" y1="49" x2="250" y2="75"/>
+
+  <!-- Withdraw -->
+  <rect class="box" x="165" y="75" width="170" height="54"/>
+  <text x="250" y="97">Withdraw</text>
+  <text x="250" y="115" class="ds">from source account</text>
+
+  <line class="arrow" x1="250" y1="129" x2="250" y2="160"/>
+
+  <!-- Withdraw Success? -->
+  <polygon points="250,160 310,195 250,230 190,195" class="box"/>
+  <text x="250" y="199" font-weight="bold">Success?</text>
+
+  <!-- Yes → Deposit -->
+  <text x="320" y="183" class="lb">Yes</text>
+  <path d="M310,195 L360,195 L360,260 L250,260" class="arrow"/>
+
+  <!-- No → Retry -->
+  <text x="180" y="183" class="lb">No</text>
+  <path d="M190,195 L140,195 L140,140" class="arrow"/>
+
+  <!-- Retry -->
+  <rect class="box" x="90" y="130" width="100" height="44"/>
+  <text x="140" y="152">Retry Policy</text>
+
+  <!-- Retry → loop back to diamond -->
+  <line class="arrow" x1="140" y1="174" x2="140" y2="190"/>
+  <line class="arrow" x1="140" y1="190" x2="250" y2="190"/>
+  <line class="arrow" x1="250" y1="190" x2="250" y2="160" style="stroke-dasharray: 3,3;"/>
+
+  <!-- Deposit -->
+  <rect class="box" x="165" y="260" width="170" height="54"/>
+  <text x="250" y="282">Deposit</text>
+  <text x="250" y="300" class="ds">into target account</text>
+
+  <line class="arrow" x1="250" y1="314" x2="250" y2="345"/>
+
+  <!-- Deposit Success? -->
+  <polygon points="250,345 310,380 250,415 190,380" class="box"/>
+  <text x="250" y="384" font-weight="bold">Success?</text>
+
+  <!-- Yes → Complete -->
+  <text x="320" y="368" class="lb">Yes</text>
+  <path d="M310,380 L360,380 L360,460 L250,460" class="arrow"/>
+
+  <!-- No → Refund -->
+  <text x="180" y="368" class="lb">No</text>
+  <path d="M190,380 L130,380 L130,420" class="arrow"/>
+
+  <!-- Refund -->
+  <rect class="box" x="55" y="420" width="150" height="54"/>
+  <text x="130" y="442">Refund</text>
+  <text x="130" y="460" class="ds">to source account</text>
+
+  <line class="arrow" x1="205" y1="447" x2="250" y2="447"/>
+  <line class="arrow" x1="250" y1="447" x2="250" y2="460"/>
+
+  <!-- Complete -->
+  <rect class="pill" x="175" y="460" width="150" height="44"/>
+  <text x="250" y="487">Transfer Complete</text>
+</svg>
