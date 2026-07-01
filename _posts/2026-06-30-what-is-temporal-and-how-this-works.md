@@ -11,6 +11,10 @@ source: dev.to
 
 ## What is Temporal and how this works?
 
+<div style="background: black; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+  <img src="https://images.ctfassets.net/0uuz8ydxyd9p/65SSC5QL4KNrKD8cWZUv6H/c4fc6fe75e17a556325b2bacbc3f801c/Group_1000001864.svg" alt="Temporal" style="max-width: 100%; height: auto;">
+</div>
+
 First of all, we need to get some context about what are workflows.
 
 You know when you're building an application and you have a sequence of steps that need to happen? Like: charge the credit card, send the email, update the database. If one of those steps fails, what happens? Do you retry? Do you rollback? Who keeps track of where you left off?
@@ -273,6 +277,13 @@ rescue Temporalio::Error::RPCError
   retry
 end
 ```
+
+Here's what this looks like in practice — the Temporal Web UI showing a workflow being executed and automatically recovering from failures:
+
+<video controls style="max-width: 100%; border-radius: 8px; margin: 20px 0;">
+  <source src="https://videos.ctfassets.net/0uuz8ydxyd9p/1VMi8Xh2bEWjaln45C01Bj/1035ec4209abe85ecb74ec90542791d2/SelfHealingWorkflow.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
 ## How it all fits together
 
