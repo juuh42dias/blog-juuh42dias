@@ -13,6 +13,7 @@ author: juuh42dias
 picture: https://avatars.githubusercontent.com/u/1828204?v=4
 
 markdown: kramdown
+highlighter: rouge
 
 compress_html:
   clippings: all
