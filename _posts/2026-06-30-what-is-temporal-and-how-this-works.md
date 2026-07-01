@@ -147,6 +147,7 @@ module MoneyTransfer
         start_to_close_timeout: 5,
         retry_policy: retry_policy
       )
+      Temporalio::Workflow.logger.info("Withdrawal confirmation: #{withdraw_result}")
 
       begin
         deposit_result = Temporalio::Workflow.execute_activity(
@@ -155,18 +156,25 @@ module MoneyTransfer
           start_to_close_timeout: 5,
           retry_policy: retry_policy
         )
+        Temporalio::Workflow.logger.info("Deposit confirmation: #{deposit_result}")
 
         "Transfer complete (transaction IDs: #{withdraw_result}, #{deposit_result})"
       rescue Temporalio::Error::ActivityError => e
-        # Refund the withdrawal if deposit fails
-        refund_result = Temporalio::Workflow.execute_activity(
-          BankActivities::Refund,
-          details,
-          start_to_close_timeout: 5,
-          retry_policy: retry_policy
-        )
+        Temporalio::Workflow.logger.error("Deposit failed: #{e}")
 
-        "Transfer refunded (transaction IDs: #{withdraw_result}, #{refund_result})"
+        begin
+          refund_result = Temporalio::Workflow.execute_activity(
+            BankActivities::Refund,
+            details,
+            start_to_close_timeout: 5,
+            retry_policy: retry_policy
+          )
+          Temporalio::Workflow.logger.info("Refund confirmation: #{refund_result}")
+
+          "Transfer complete (transaction IDs: #{withdraw_result}, #{refund_result})"
+        rescue Temporalio::Error::ActivityError => refund_error
+          Temporalio::Workflow.logger.error("Refund failed: #{refund_error}")
+        end
       end
     end
   end

@@ -1,0 +1,163 @@
+<!DOCTYPE html><html lang="en" dir="ltr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>What is Temporal and how this works? | Juliana Dias</title><meta name="description" content="What is Temporal and how this works — a walkthrough using the Ruby SDK with a bank account transfer example"><link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/favicon.ico" type="image/x-icon"><link href='/feed.xml' rel='alternate' type='application/atom+xml'><link rel="canonical" href="/blog/what-is-temporal-and-how-this-works"><link rel="stylesheet" href="/assets/style.css"> <!-- Facebook Meta Tags --><meta property="og:url" content="https://blog.juliana.dev"><meta property="og:type" content="website"><meta property="og:image" content="/assets/images/juliana.jpg"> <!-- Twitter Meta Tags --><meta name="twitter:card" content="summary_large_image"><meta property="twitter:domain" content="blog.juliana.dev"><meta property="twitter:url" content="https://blog.juliana.dev"><meta name="twitter:image" content="/assets/images/keynote.jpeg"><body><main><h2 class="title">Juliana Dias</h2><nav> <a href="https://blog.juliana.dev">Home</a> <a href="https://blog.juliana.dev/blog">Blog</a> <a href="https://www.linkedin.com/in/juuh42dias/">[Resume]</a> <a href="https://duckduckgo.com">[Search]</a></nav><h1>What is Temporal and how this works?</h1><i>Jun 30, 2026</i><h4 class="subtitle"></h4><h2 id="what-is-temporal-and-how-this-works">What is Temporal and how this works?</h2><p>First of all, we need to get some context about what are workflows.</p><p>You know when you’re building an application and you have a sequence of steps that need to happen? Like: charge the credit card, send the email, update the database. If one of those steps fails, what happens? Do you retry? Do you rollback? Who keeps track of where you left off?</p><p>That’s where workflow engines like Temporal come in.</p><p>Temporal is a durable execution platform. Think of it as an autosave for your application state. It makes your code resilient to failures — network issues, server crashes, you name it. If something fails mid-execution, Temporal remembers exactly where it was and picks up from there.</p><h2 id="the-superpowers">The superpowers</h2><p>Temporal gives you a bunch of capabilities out of the box that would be painful to build yourself:</p><p><strong>State machines — Autosave for application state</strong> Every workflow execution is a state machine. Temporal keeps track of every state transition so if your worker crashes, the workflow resumes from the last completed step. No data loss, no manual recovery.</p><p><strong>Native Retries</strong> Activities (the individual steps in your workflow) can have retry policies built in. You define how many times to retry, the interval between retries, and what errors should <em>not</em> be retried. Temporal handles the rest.</p><p><strong>Timeouts/timers — Wait for 3 seconds or 3 months</strong> Need to wait for a payment confirmation? Or send a reminder email after 7 days? Temporal timers are first-class citizens. You can wait for any duration and the timeout survives server restarts.</p><p><strong>Schedules — Schedule, don’t Cron</strong> Cron is great until you need to manage it across multiple servers. Temporal Schedules let you run workflows on a timer in a reliable, distributed way.</p><p><strong>Idiomatic language support — Many SDKs</strong> Temporal has SDKs for Go, Java, TypeScript, Python, .NET, and of course Ruby. You write workflows in your language of choice, using the patterns you already know.</p><p><strong>Human in the loop</strong> Sometimes a workflow needs a human decision — approve a transfer, review a document. Temporal supports external signals so you can pause a workflow and wait for a human to act.</p><p><strong>Execution visibility — Inspect, replay, rewind</strong> You can see exactly what happened in any workflow execution. Inspect the state, replay it, rewind it. Debugging long-running processes becomes something that’s actually feasible.</p><p><strong>Run Temporal locally</strong> Before taking anything to production, you can spin up Temporal Server locally with Docker and test everything on your machine.</p><h2 id="architecture">Architecture</h2><p>Temporal’s architecture has three main pieces:</p><p><strong>Workflows</strong> — The orchestration logic. They define the sequence of steps, handle errors, and manage state. Workflows must be deterministic (no random, no IO, no system clock).</p><p><strong>Activities</strong> — The actual work. They do the real stuff: call APIs, read/write databases, send emails. Activities can be retried and have timeouts.</p><p><strong>Workers</strong> — The processes that host and execute Workflows and Activities. Workers poll the Temporal Server for tasks and execute them.</p><h2 id="lets-see-some-code">Let’s see some code</h2><p>The classic example is a money transfer between two bank accounts. Here’s how it looks with the Temporal Ruby SDK.</p><p>First, we define the shared data structure and custom errors:</p><div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># shared.rb</span>
+<span class="nb">require</span> <span class="s1">'json/add/struct'</span>
+
+<span class="k">module</span> <span class="nn">MoneyTransfer</span>
+  <span class="no">TASK_QUEUE_NAME</span> <span class="o">=</span> <span class="s1">'money-transfer'</span>
+
+  <span class="k">class</span> <span class="nc">InsufficientFundsError</span> <span class="o">&lt;</span> <span class="no">StandardError</span><span class="p">;</span> <span class="k">end</span>
+  <span class="k">class</span> <span class="nc">InvalidAccountError</span> <span class="o">&lt;</span> <span class="no">StandardError</span><span class="p">;</span> <span class="k">end</span>
+
+  <span class="no">TransferDetails</span> <span class="o">=</span> <span class="no">Struct</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">:source_account</span><span class="p">,</span> <span class="ss">:target_account</span><span class="p">,</span> <span class="ss">:amount</span><span class="p">,</span> <span class="ss">:reference_id</span><span class="p">)</span> <span class="k">do</span>
+    <span class="k">def</span> <span class="nf">to_s</span>
+      <span class="s2">"TransferDetails { </span><span class="si">#{</span><span class="n">source_account</span><span class="si">}</span><span class="s2">, </span><span class="si">#{</span><span class="n">target_account</span><span class="si">}</span><span class="s2">, </span><span class="si">#{</span><span class="n">amount</span><span class="si">}</span><span class="s2">, </span><span class="si">#{</span><span class="n">reference_id</span><span class="si">}</span><span class="s2"> }"</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div><p>Then we define the Activities — the actual bank operations:</p><div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># activities.rb</span>
+<span class="nb">require_relative</span> <span class="s1">'shared'</span>
+<span class="nb">require</span> <span class="s1">'temporalio/activity'</span>
+
+<span class="k">module</span> <span class="nn">MoneyTransfer</span>
+  <span class="k">module</span> <span class="nn">BankActivities</span>
+    <span class="k">class</span> <span class="nc">Withdraw</span> <span class="o">&lt;</span> <span class="no">Temporalio</span><span class="o">::</span><span class="no">Activity</span><span class="o">::</span><span class="no">Definition</span>
+      <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">details</span><span class="p">)</span>
+        <span class="nb">puts</span><span class="p">(</span><span class="s2">"Doing a withdrawal from </span><span class="si">#{</span><span class="n">details</span><span class="p">.</span><span class="nf">source_account</span><span class="si">}</span><span class="s2"> for </span><span class="si">#{</span><span class="n">details</span><span class="p">.</span><span class="nf">amount</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="no">InsufficientFundsError</span><span class="p">,</span> <span class="s1">'Transfer amount too large'</span> <span class="k">if</span> <span class="n">details</span><span class="p">.</span><span class="nf">amount</span> <span class="o">&gt;</span> <span class="mi">1000</span>
+
+        <span class="s2">"OKW-</span><span class="si">#{</span><span class="n">details</span><span class="p">.</span><span class="nf">amount</span><span class="si">}</span><span class="s2">-</span><span class="si">#{</span><span class="n">details</span><span class="p">.</span><span class="nf">source_account</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="k">class</span> <span class="nc">Deposit</span> <span class="o">&lt;</span> <span class="no">Temporalio</span><span class="o">::</span><span class="no">Activity</span><span class="o">::</span><span class="no">Definition</span>
+      <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">details</span><span class="p">)</span>
+        <span class="nb">puts</span><span class="p">(</span><span class="s2">"Doing a deposit into </span><span class="si">#{</span><span class="n">details</span><span class="p">.</span><span class="nf">target_account</span><span class="si">}</span><span class="s2"> for </span><span class="si">#{</span><span class="n">details</span><span class="p">.</span><span class="nf">amount</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="no">InvalidAccountError</span><span class="p">,</span> <span class="s1">'Invalid account number'</span> <span class="k">if</span> <span class="n">details</span><span class="p">.</span><span class="nf">target_account</span> <span class="o">==</span> <span class="s1">'B5555'</span>
+
+        <span class="s2">"OKD-</span><span class="si">#{</span><span class="n">details</span><span class="p">.</span><span class="nf">amount</span><span class="si">}</span><span class="s2">-</span><span class="si">#{</span><span class="n">details</span><span class="p">.</span><span class="nf">target_account</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="k">class</span> <span class="nc">Refund</span> <span class="o">&lt;</span> <span class="no">Temporalio</span><span class="o">::</span><span class="no">Activity</span><span class="o">::</span><span class="no">Definition</span>
+      <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">details</span><span class="p">)</span>
+        <span class="nb">puts</span><span class="p">(</span><span class="s2">"Refunding </span><span class="si">#{</span><span class="n">details</span><span class="p">.</span><span class="nf">amount</span><span class="si">}</span><span class="s2"> back to account </span><span class="si">#{</span><span class="n">details</span><span class="p">.</span><span class="nf">source_account</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="s2">"OKR-</span><span class="si">#{</span><span class="n">details</span><span class="p">.</span><span class="nf">amount</span><span class="si">}</span><span class="s2">-</span><span class="si">#{</span><span class="n">details</span><span class="p">.</span><span class="nf">source_account</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div><p>Now the Workflow — this is where the orchestration happens:</p><div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># workflow.rb</span>
+<span class="nb">require_relative</span> <span class="s1">'activities'</span>
+<span class="nb">require_relative</span> <span class="s1">'shared'</span>
+<span class="nb">require</span> <span class="s1">'temporalio/retry_policy'</span>
+<span class="nb">require</span> <span class="s1">'temporalio/workflow'</span>
+
+<span class="k">module</span> <span class="nn">MoneyTransfer</span>
+  <span class="k">class</span> <span class="nc">MoneyTransferWorkflow</span> <span class="o">&lt;</span> <span class="no">Temporalio</span><span class="o">::</span><span class="no">Workflow</span><span class="o">::</span><span class="no">Definition</span>
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">details</span><span class="p">)</span>
+      <span class="n">retry_policy</span> <span class="o">=</span> <span class="no">Temporalio</span><span class="o">::</span><span class="no">RetryPolicy</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span>
+        <span class="ss">max_interval: </span><span class="mi">10</span><span class="p">,</span>
+        <span class="ss">non_retryable_error_types: </span><span class="p">[</span>
+          <span class="s1">'InvalidAccountError'</span><span class="p">,</span>
+          <span class="s1">'InsufficientFundsError'</span>
+        <span class="p">]</span>
+      <span class="p">)</span>
+
+      <span class="no">Temporalio</span><span class="o">::</span><span class="no">Workflow</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="s2">"Starting workflow (</span><span class="si">#{</span><span class="n">details</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+
+      <span class="n">withdraw_result</span> <span class="o">=</span> <span class="no">Temporalio</span><span class="o">::</span><span class="no">Workflow</span><span class="p">.</span><span class="nf">execute_activity</span><span class="p">(</span>
+        <span class="no">BankActivities</span><span class="o">::</span><span class="no">Withdraw</span><span class="p">,</span>
+        <span class="n">details</span><span class="p">,</span>
+        <span class="ss">start_to_close_timeout: </span><span class="mi">5</span><span class="p">,</span>
+        <span class="ss">retry_policy: </span><span class="n">retry_policy</span>
+      <span class="p">)</span>
+      <span class="no">Temporalio</span><span class="o">::</span><span class="no">Workflow</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="s2">"Withdrawal confirmation: </span><span class="si">#{</span><span class="n">withdraw_result</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+      <span class="k">begin</span>
+        <span class="n">deposit_result</span> <span class="o">=</span> <span class="no">Temporalio</span><span class="o">::</span><span class="no">Workflow</span><span class="p">.</span><span class="nf">execute_activity</span><span class="p">(</span>
+          <span class="no">BankActivities</span><span class="o">::</span><span class="no">Deposit</span><span class="p">,</span>
+          <span class="n">details</span><span class="p">,</span>
+          <span class="ss">start_to_close_timeout: </span><span class="mi">5</span><span class="p">,</span>
+          <span class="ss">retry_policy: </span><span class="n">retry_policy</span>
+        <span class="p">)</span>
+        <span class="no">Temporalio</span><span class="o">::</span><span class="no">Workflow</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="s2">"Deposit confirmation: </span><span class="si">#{</span><span class="n">deposit_result</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="s2">"Transfer complete (transaction IDs: </span><span class="si">#{</span><span class="n">withdraw_result</span><span class="si">}</span><span class="s2">, </span><span class="si">#{</span><span class="n">deposit_result</span><span class="si">}</span><span class="s2">)"</span>
+      <span class="k">rescue</span> <span class="no">Temporalio</span><span class="o">::</span><span class="no">Error</span><span class="o">::</span><span class="no">ActivityError</span> <span class="o">=&gt;</span> <span class="n">e</span>
+        <span class="no">Temporalio</span><span class="o">::</span><span class="no">Workflow</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">error</span><span class="p">(</span><span class="s2">"Deposit failed: </span><span class="si">#{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="k">begin</span>
+          <span class="n">refund_result</span> <span class="o">=</span> <span class="no">Temporalio</span><span class="o">::</span><span class="no">Workflow</span><span class="p">.</span><span class="nf">execute_activity</span><span class="p">(</span>
+            <span class="no">BankActivities</span><span class="o">::</span><span class="no">Refund</span><span class="p">,</span>
+            <span class="n">details</span><span class="p">,</span>
+            <span class="ss">start_to_close_timeout: </span><span class="mi">5</span><span class="p">,</span>
+            <span class="ss">retry_policy: </span><span class="n">retry_policy</span>
+          <span class="p">)</span>
+          <span class="no">Temporalio</span><span class="o">::</span><span class="no">Workflow</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="s2">"Refund confirmation: </span><span class="si">#{</span><span class="n">refund_result</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+          <span class="s2">"Transfer complete (transaction IDs: </span><span class="si">#{</span><span class="n">withdraw_result</span><span class="si">}</span><span class="s2">, </span><span class="si">#{</span><span class="n">refund_result</span><span class="si">}</span><span class="s2">)"</span>
+        <span class="k">rescue</span> <span class="no">Temporalio</span><span class="o">::</span><span class="no">Error</span><span class="o">::</span><span class="no">ActivityError</span> <span class="o">=&gt;</span> <span class="n">refund_error</span>
+          <span class="no">Temporalio</span><span class="o">::</span><span class="no">Workflow</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">error</span><span class="p">(</span><span class="s2">"Refund failed: </span><span class="si">#{</span><span class="n">refund_error</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div><p>Notice how the Workflow doesn’t do the actual bank operations — it just orchestrates them. The Activities do the real work. If a deposit fails after a successful withdrawal, the Workflow automatically refunds the amount. That’s the kind of safety net that’s hard to build manually.</p><p>The Worker ties everything together:</p><div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># worker.rb</span>
+<span class="nb">require_relative</span> <span class="s1">'activities'</span>
+<span class="nb">require_relative</span> <span class="s1">'shared'</span>
+<span class="nb">require_relative</span> <span class="s1">'workflow'</span>
+<span class="nb">require</span> <span class="s1">'logger'</span>
+<span class="nb">require</span> <span class="s1">'temporalio/client'</span>
+<span class="nb">require</span> <span class="s1">'temporalio/worker'</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="no">Temporalio</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">connect</span><span class="p">(</span>
+  <span class="s1">'localhost:7233'</span><span class="p">,</span>
+  <span class="s1">'default'</span><span class="p">,</span>
+  <span class="ss">logger: </span><span class="no">Logger</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="vg">$stdout</span><span class="p">,</span> <span class="ss">level: </span><span class="no">Logger</span><span class="o">::</span><span class="no">INFO</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">worker</span> <span class="o">=</span> <span class="no">Temporalio</span><span class="o">::</span><span class="no">Worker</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span>
+  <span class="n">client</span><span class="p">:,</span>
+  <span class="ss">task_queue: </span><span class="no">MoneyTransfer</span><span class="o">::</span><span class="no">TASK_QUEUE_NAME</span><span class="p">,</span>
+  <span class="ss">workflows: </span><span class="p">[</span><span class="no">MoneyTransfer</span><span class="o">::</span><span class="no">MoneyTransferWorkflow</span><span class="p">],</span>
+  <span class="ss">activities: </span><span class="p">[</span>
+    <span class="no">MoneyTransfer</span><span class="o">::</span><span class="no">BankActivities</span><span class="o">::</span><span class="no">Withdraw</span><span class="p">,</span>
+    <span class="no">MoneyTransfer</span><span class="o">::</span><span class="no">BankActivities</span><span class="o">::</span><span class="no">Deposit</span><span class="p">,</span>
+    <span class="no">MoneyTransfer</span><span class="o">::</span><span class="no">BankActivities</span><span class="o">::</span><span class="no">Refund</span>
+  <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="nb">puts</span> <span class="s1">'Starting Worker (press Ctrl+C to exit)'</span>
+<span class="n">worker</span><span class="p">.</span><span class="nf">run</span><span class="p">(</span><span class="ss">shutdown_signals: </span><span class="p">[</span><span class="s1">'SIGINT'</span><span class="p">])</span>
+</code></pre></div></div><p>And finally, a client to start the workflow:</p><div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># starter.rb</span>
+<span class="nb">require_relative</span> <span class="s1">'shared'</span>
+<span class="nb">require_relative</span> <span class="s1">'workflow'</span>
+<span class="nb">require</span> <span class="s1">'securerandom'</span>
+<span class="nb">require</span> <span class="s1">'temporalio/client'</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="no">Temporalio</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">connect</span><span class="p">(</span><span class="s1">'localhost:7233'</span><span class="p">,</span> <span class="s1">'default'</span><span class="p">)</span>
+
+<span class="n">details</span> <span class="o">=</span> <span class="no">MoneyTransfer</span><span class="o">::</span><span class="no">TransferDetails</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'A1001'</span><span class="p">,</span> <span class="s1">'B2002'</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="no">SecureRandom</span><span class="p">.</span><span class="nf">uuid</span><span class="p">)</span>
+<span class="n">details</span><span class="p">.</span><span class="nf">source_account</span> <span class="o">=</span> <span class="no">ARGV</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="no">ARGV</span><span class="p">.</span><span class="nf">length</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+<span class="n">details</span><span class="p">.</span><span class="nf">target_account</span> <span class="o">=</span> <span class="no">ARGV</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="no">ARGV</span><span class="p">.</span><span class="nf">length</span> <span class="o">&gt;=</span> <span class="mi">2</span>
+<span class="n">details</span><span class="p">.</span><span class="nf">amount</span> <span class="o">=</span> <span class="no">ARGV</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="nf">to_i</span> <span class="k">if</span> <span class="no">ARGV</span><span class="p">.</span><span class="nf">length</span> <span class="o">&gt;=</span> <span class="mi">3</span>
+<span class="n">details</span><span class="p">.</span><span class="nf">reference_id</span> <span class="o">=</span> <span class="no">ARGV</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">if</span> <span class="no">ARGV</span><span class="p">.</span><span class="nf">length</span> <span class="o">&gt;=</span> <span class="mi">4</span>
+
+<span class="n">handle</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">start_workflow</span><span class="p">(</span>
+  <span class="no">MoneyTransfer</span><span class="o">::</span><span class="no">MoneyTransferWorkflow</span><span class="p">,</span>
+  <span class="n">details</span><span class="p">,</span>
+  <span class="ss">id: </span><span class="s2">"moneytransfer-</span><span class="si">#{</span><span class="n">details</span><span class="p">.</span><span class="nf">reference_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+  <span class="ss">task_queue: </span><span class="no">MoneyTransfer</span><span class="o">::</span><span class="no">TASK_QUEUE_NAME</span>
+<span class="p">)</span>
+
+<span class="nb">puts</span> <span class="s2">"Initiated transfer of $</span><span class="si">#{</span><span class="n">details</span><span class="p">.</span><span class="nf">amount</span><span class="si">}</span><span class="s2"> from </span><span class="si">#{</span><span class="n">details</span><span class="p">.</span><span class="nf">source_account</span><span class="si">}</span><span class="s2"> to </span><span class="si">#{</span><span class="n">details</span><span class="p">.</span><span class="nf">target_account</span><span class="si">}</span><span class="s2">"</span>
+<span class="nb">puts</span> <span class="s2">"Workflow ID: </span><span class="si">#{</span><span class="n">handle</span><span class="p">.</span><span class="nf">id</span><span class="si">}</span><span class="s2">"</span>
+
+<span class="k">begin</span>
+  <span class="nb">puts</span> <span class="s2">"Workflow result: </span><span class="si">#{</span><span class="n">handle</span><span class="p">.</span><span class="nf">result</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">rescue</span> <span class="no">Temporalio</span><span class="o">::</span><span class="no">Error</span><span class="o">::</span><span class="no">RPCError</span>
+  <span class="nb">puts</span> <span class="s1">'Temporal Service unavailable while awaiting result'</span>
+  <span class="k">retry</span>
+<span class="k">end</span>
+</code></pre></div></div><h2 id="how-it-all-fits-together">How it all fits together</h2><p>You spin up a Worker, it connects to the Temporal Server and listens on a Task Queue. When you run the starter, it tells the Server “hey, I want to execute a MoneyTransferWorkflow with these details”. The Server schedules it on the Task Queue, the Worker picks it up, and executes the workflow step by step — persisting state after each step.</p><p>If the Worker crashes mid-transfer, no problem. Another Worker (or the same one after restart) picks up where it left off.</p><p>That’s the magic of Temporal. You write your business logic like a simple Ruby class, and you get reliability, retries, timeouts, and visibility for free.</p><p>The code is available on the <a href="https://github.com/temporalio/money-transfer-project-template-ruby">Temporal money-transfer-project-template-ruby</a> repository if you want to play with it yourself.</p></main><footer> <a href="/blog">← Back to all writings</a> <!--<nav class="sans"><hr> <input class="menu-btn" type="checkbox" id="menu-btn" /><p><label class="menu-icon" for="menu-btn">Menu</label></p><ul class="site-nav"><li><a href="/">Home</a><li><a href="/blog">Blog</a><li><a href="/designs">Designs</a><li><a href="/about">About</a><li><a href="https://canisee.xyz" title="Confirm your vision functionality">[Can I See]</a></ul></nav>--> <!-- <span class="mini-note">You've reached the end of the page. Good job!</span> --> <!--<nav class="sans"><hr><p><label class="menu-icon" for="menu-btn">Menu</label></p><ul class="site-nav"><li><a href="/">Home</a><li><a href="/blog">Blog</a><li><a href="/designs">Designs</a><li><a href="/about">About</a><li><a href="https://canisee.xyz" title="Confirm your vision functionality">[Can I See]</a></ul></nav>--><div class="bottom-footer"> <i>Theme <a href="https://knhash.in/jekyllBear" title="the art">jekyllBear</a> built and maintained by <a href="https://knhash.in" title="the artist">knhash</a> </i></div></footer><!-- <script type="text/x-mathjax-config"> MathJax.Hub.Config({ extensions: ["tex2jax.js", "TeX/AMSmath.js"], jax: ["input/TeX", "output/SVG"], }) </script> <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=default"> </script> -->
