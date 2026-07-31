@@ -17,8 +17,8 @@ What if you could run a capable LLM on your own machine? No login, no internet, 
 
 In this post I'll show you how to set it up on the two machines I use every day:
 
-- **Avell A60 MUV** — Intel i7-9750H, NVIDIA GTX 1660 Ti (6GB), 32GB RAM, running **Pop!_OS**
-- **MacBook** — Apple Silicon, running **macOS Tahoe**
+- **Avell A60 MUV** — Intel i7-9750H, NVIDIA GTX 1660 Ti (6GB), 32GB RAM, 2TB SSD, running **Pop!_OS**
+- **MacBook M1** — 16GB unified memory, 1TB SSD, running **macOS Tahoe**
 
 The tool of choice: **Ollama**. It's free, open source, works on Linux, macOS and Windows, and it handles the annoying parts (GPU detection, quantization, model management) for you.
 
@@ -131,7 +131,7 @@ Mac users, you can see exactly what's happening with the verbose flag:
 $ ollama run qwen3:8b --verbose
 ```
 
-After a response, you get a breakdown: load duration, eval count and speed in tokens per second. On an M-series Mac, expect anywhere from 20 to 60+ tokens/s depending on the chip — that's faster than you can read.
+After a response, you get a breakdown: load duration, eval count and speed in tokens per second. On the M1 expect around 15–30 tokens/s with an 8B model — faster than you can read, and the first generation of Apple Silicon is already plenty for everyday use.
 
 ## Which model should you pick?
 
@@ -140,7 +140,7 @@ This is the question I get the most. Here's what I'd install first on each machi
 | Hardware | Sweet spot | Also try |
 | --- | --- | --- |
 | Avell A60 MUV (6GB VRAM) | `deepseek-r1:7b`, `qwen3:4b` | `llama3.2:3b`, `gemma3:4b` |
-| MacBook 16GB (Apple Silicon) | `qwen3:8b`, `llama3.1:8b` | `deepseek-r1:14b` (slower, smarter) |
+| MacBook M1 16GB | `qwen3:8b`, `llama3.1:8b` | `deepseek-r1:14b` (slower, smarter) |
 | MacBook 8GB (Apple Silicon) | `qwen3:4b`, `llama3.2:3b` | `phi4-mini` |
 
 General rules:
