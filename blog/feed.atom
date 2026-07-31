@@ -1,4 +1,198 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://blog.juliana.dev/blog/feed.atom" rel="self" type="application/atom+xml" /><link href="https://blog.juliana.dev/" rel="alternate" type="text/html" /><updated>2026-06-30T22:51:27-03:00</updated><id>https://blog.juliana.dev/blog/feed.atom</id><title type="html">Juliana Dias</title><subtitle>Ruby Software Craftswoman | Admin at t.me/RubyBrasil | She/Ela | Made in Goiás</subtitle><author><name>juuh42dias</name></author><entry><title type="html">What is Temporal and how this works?</title><link href="https://blog.juliana.dev/blog/what-is-temporal-and-how-this-works" rel="alternate" type="text/html" title="What is Temporal and how this works?" /><published>2026-06-30T10:00:00-03:00</published><updated>2026-06-30T10:00:00-03:00</updated><id>https://blog.juliana.dev/blog/what-is-temporal-and-how-this-works</id><content type="html" xml:base="https://blog.juliana.dev/blog/what-is-temporal-and-how-this-works"><![CDATA[<h2 id="what-is-temporal-and-how-this-works">What is Temporal and how this works?</h2>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://blog.juliana.dev/blog/feed.atom" rel="self" type="application/atom+xml" /><link href="https://blog.juliana.dev/" rel="alternate" type="text/html" /><updated>2026-07-30T22:44:37-03:00</updated><id>https://blog.juliana.dev/blog/feed.atom</id><title type="html">Juliana Dias</title><subtitle>Ruby Software Craftswoman | Admin at t.me/RubyBrasil | She/Ela | Made in Goiás</subtitle><author><name>juuh42dias</name></author><entry><title type="html">Run LLM models locally with Ollama: Pop!_OS and macOS</title><link href="https://blog.juliana.dev/blog/run-llms-locally-ollama" rel="alternate" type="text/html" title="Run LLM models locally with Ollama: Pop!_OS and macOS" /><published>2026-07-30T10:00:00-03:00</published><updated>2026-07-30T10:00:00-03:00</updated><id>https://blog.juliana.dev/blog/run-llms-locally-ollama</id><content type="html" xml:base="https://blog.juliana.dev/blog/run-llms-locally-ollama"><![CDATA[<h2 id="run-llm-models-locally-with-ollama-pop_os-and-macos">Run LLM models locally with Ollama: Pop!_OS and macOS</h2>
+
+<p>You know when you’re working on something and you need a quick answer — “what’s the syntax for this again?”, “rewrite this error message”, “explain this stack trace” — and you end up pasting your code into a browser tab, sending it to some company’s server?</p>
+
+<p>What if you could run a capable LLM on your own machine? No login, no internet, no data leaving your laptop, no pay-per-token. Your code never leaves your hard drive. And on modern hardware it’s surprisingly fast.</p>
+
+<p>In this post I’ll show you how to set it up on the two machines I use every day:</p>
+
+<ul>
+  <li><strong>Avell A60 MUV</strong> — Intel i7-9750H, NVIDIA GTX 1660 Ti (6GB), 32GB RAM, running <strong>Pop!_OS</strong></li>
+  <li><strong>MacBook</strong> — Apple Silicon, running <strong>macOS Tahoe</strong></li>
+</ul>
+
+<p>The tool of choice: <strong>Ollama</strong>. It’s free, open source, works on Linux, macOS and Windows, and it handles the annoying parts (GPU detection, quantization, model management) for you.</p>
+
+<h2 id="first-the-hardware-reality-check">First, the hardware reality check</h2>
+
+<p>Before installing anything, let’s be honest about what matters. The two things that limit you are:</p>
+
+<p><strong>VRAM (GPU memory)</strong> on the Linux machine — your GTX 1660 Ti has 6GB. A 7B parameter model quantized to 4-bit takes roughly 4.5GB. A 14B model takes ~9GB. You can spill over to system RAM, but generation gets slow.</p>
+
+<p><strong>Unified memory</strong> on the Mac — Apple Silicon Macs share RAM between CPU and GPU, which is a superpower for local inference. An M-series Mac with 16GB can comfortably run 8B models, and even 14B if you’re not in a hurry.</p>
+
+<p>Rule of thumb: the model file size should fit in your available memory. Ollama shows you the size right before pulling.</p>
+
+<h2 id="install-on-pop_os">Install on Pop!_OS</h2>
+
+<h3 id="step-1-make-sure-the-nvidia-driver-is-happy">Step 1: Make sure the NVIDIA driver is happy</h3>
+
+<p>Pop!_OS is nice here — if you installed the NVIDIA ISO, your GPU already works out of the box. Let’s confirm:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>nvidia-smi
+</code></pre></div></div>
+
+<p>You should see your GTX 1660 Ti, driver version and memory info. If the command isn’t found, install the driver:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>apt <span class="nb">install </span>system76-driver-nvidia
+<span class="nv">$ </span><span class="nb">sudo </span>reboot
+</code></pre></div></div>
+
+<h3 id="step-2-install-ollama">Step 2: Install Ollama</h3>
+
+<p>One command:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>curl <span class="nt">-fsSL</span> https://ollama.com/install.sh | sh
+</code></pre></div></div>
+
+<p>The installer detects your NVIDIA GPU, installs CUDA support automatically, and sets up a systemd service.</p>
+
+<p>Check that it’s running:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>systemctl status ollama
+</code></pre></div></div>
+
+<p>If it’s not active, start it with <code class="language-plaintext highlighter-rouge">sudo systemctl start ollama</code>.</p>
+
+<h3 id="step-3-pull-and-run-a-model">Step 3: Pull and run a model</h3>
+
+<p>Let’s pull DeepSeek R1 distilled to 7B — a reasoning model that’s great for coding and explains its thinking out loud:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ollama pull deepseek-r1:7b
+<span class="nv">$ </span>ollama run deepseek-r1:7b
+</code></pre></div></div>
+
+<p>And you’re in a chat. Type a question:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt;&gt;&gt; explain the difference between a process and a thread in 3 sentences
+</code></pre></div></div>
+
+<p>To exit, type <code class="language-plaintext highlighter-rouge">/bye</code> or press <code class="language-plaintext highlighter-rouge">Ctrl+D</code>.</p>
+
+<h3 id="step-4-prove-the-gpu-is-being-used">Step 4: Prove the GPU is being used</h3>
+
+<p>This is the part everyone loves. In another terminal, while the model is generating:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ollama ps
+</code></pre></div></div>
+
+<p>You should see the model with a <code class="language-plaintext highlighter-rouge">PROCESSOR</code> column showing <code class="language-plaintext highlighter-rouge">100% GPU</code>. Or check the GPU directly:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>nvidia-smi
+</code></pre></div></div>
+
+<p>You’ll see an <code class="language-plaintext highlighter-rouge">ollama_llama_server</code> process eating VRAM and GPU-Util jumping up while it generates. That’s your GPU doing the work.</p>
+
+<h2 id="install-on-macos-tahoe">Install on macOS Tahoe</h2>
+
+<h3 id="step-1-install-ollama">Step 1: Install Ollama</h3>
+
+<p>Two options. The lazy (and best) one, with Homebrew:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>brew <span class="nb">install </span>ollama
+</code></pre></div></div>
+
+<p>Or download the Ollama.app from <a href="https://ollama.com/download">ollama.com/download</a>, drag it to Applications, and launch it once — it runs a little whale icon in your menu bar and exposes the API on <code class="language-plaintext highlighter-rouge">localhost:11434</code>.</p>
+
+<h3 id="step-2-pull-and-run-a-model">Step 2: Pull and run a model</h3>
+
+<p>Same commands as Linux, because Ollama is cross-platform by design:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ollama pull qwen3:8b
+<span class="nv">$ </span>ollama run qwen3:8b
+</code></pre></div></div>
+
+<p>On Apple Silicon, Ollama uses the <strong>Metal</strong> framework automatically — no driver installation, no configuration. The GPU just works.</p>
+
+<h3 id="step-3-check-the-speed">Step 3: Check the speed</h3>
+
+<p>Mac users, you can see exactly what’s happening with the verbose flag:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ollama run qwen3:8b <span class="nt">--verbose</span>
+</code></pre></div></div>
+
+<p>After a response, you get a breakdown: load duration, eval count and speed in tokens per second. On an M-series Mac, expect anywhere from 20 to 60+ tokens/s depending on the chip — that’s faster than you can read.</p>
+
+<h2 id="which-model-should-you-pick">Which model should you pick?</h2>
+
+<p>This is the question I get the most. Here’s what I’d install first on each machine:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Hardware</th>
+      <th>Sweet spot</th>
+      <th>Also try</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Avell A60 MUV (6GB VRAM)</td>
+      <td><code class="language-plaintext highlighter-rouge">deepseek-r1:7b</code>, <code class="language-plaintext highlighter-rouge">qwen3:4b</code></td>
+      <td><code class="language-plaintext highlighter-rouge">llama3.2:3b</code>, <code class="language-plaintext highlighter-rouge">gemma3:4b</code></td>
+    </tr>
+    <tr>
+      <td>MacBook 16GB (Apple Silicon)</td>
+      <td><code class="language-plaintext highlighter-rouge">qwen3:8b</code>, <code class="language-plaintext highlighter-rouge">llama3.1:8b</code></td>
+      <td><code class="language-plaintext highlighter-rouge">deepseek-r1:14b</code> (slower, smarter)</td>
+    </tr>
+    <tr>
+      <td>MacBook 8GB (Apple Silicon)</td>
+      <td><code class="language-plaintext highlighter-rouge">qwen3:4b</code>, <code class="language-plaintext highlighter-rouge">llama3.2:3b</code></td>
+      <td><code class="language-plaintext highlighter-rouge">phi4-mini</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>General rules:</p>
+
+<ul>
+  <li><strong>Coding</strong> → DeepSeek R1 or Qwen Coder (<code class="language-plaintext highlighter-rouge">qwen2.5-coder:7b</code>)</li>
+  <li><strong>General chat</strong> → Qwen 3 or Llama 3.2</li>
+  <li><strong>Small/fast</strong> → <code class="language-plaintext highlighter-rouge">llama3.2:3b</code> fits almost anywhere and answers instantly</li>
+  <li><strong>Bigger is not always better</strong> — a model that fits in memory beats a bigger one that swaps to disk</li>
+</ul>
+
+<p>To browse everything available: <code class="language-plaintext highlighter-rouge">ollama list</code> shows installed models, and <a href="https://ollama.com/library">ollama.com/library</a> is the catalog.</p>
+
+<h2 id="beyond-the-terminal">Beyond the terminal</h2>
+
+<p>The CLI is just the beginning. Ollama exposes a REST API on <code class="language-plaintext highlighter-rouge">localhost:11434</code>, so you can wire it into your own tools.</p>
+
+<p>With curl:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>curl http://localhost:11434/api/generate <span class="nt">-d</span> <span class="s1">'{
+  "model": "deepseek-r1:7b",
+  "prompt": "Explain how a hash map works",
+  "stream": false
+}'</span>
+</code></pre></div></div>
+
+<p>It also speaks OpenAI-compatible format at <code class="language-plaintext highlighter-rouge">/v1/chat/completions</code> — which means anything written for the OpenAI API can point to your local server instead. Being a Ruby person, here’s a tiny example:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'net/http'</span>
+<span class="nb">require</span> <span class="s1">'json'</span>
+
+<span class="n">uri</span> <span class="o">=</span> <span class="no">URI</span><span class="p">(</span><span class="s1">'http://localhost:11434/v1/chat/completions'</span><span class="p">)</span>
+<span class="n">req</span> <span class="o">=</span> <span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="o">::</span><span class="no">Post</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="s1">'Content-Type'</span> <span class="o">=&gt;</span> <span class="s1">'application/json'</span><span class="p">)</span>
+<span class="n">req</span><span class="p">.</span><span class="nf">body</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="ss">model: </span><span class="s1">'qwen3:8b'</span><span class="p">,</span>
+  <span class="ss">messages: </span><span class="p">[{</span> <span class="ss">role: </span><span class="s1">'user'</span><span class="p">,</span> <span class="ss">content: </span><span class="s1">'Explain recursion like I am five'</span> <span class="p">}]</span>
+<span class="p">}.</span><span class="nf">to_json</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="p">.</span><span class="nf">start</span><span class="p">(</span><span class="n">uri</span><span class="p">.</span><span class="nf">hostname</span><span class="p">,</span> <span class="n">uri</span><span class="p">.</span><span class="nf">port</span><span class="p">)</span> <span class="p">{</span> <span class="o">|</span><span class="n">http</span><span class="o">|</span> <span class="n">http</span><span class="p">.</span><span class="nf">request</span><span class="p">(</span><span class="n">req</span><span class="p">)</span> <span class="p">}</span>
+<span class="nb">puts</span> <span class="no">JSON</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="nf">body</span><span class="p">)[</span><span class="s1">'choices'</span><span class="p">].</span><span class="nf">first</span><span class="p">[</span><span class="s1">'message'</span><span class="p">][</span><span class="s1">'content'</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>For a chat UI in the browser, <a href="https://github.com/open-webui/open-webui">Open WebUI</a> runs as a Docker container and connects to Ollama with zero code. And if you prefer a desktop app over the terminal, <a href="https://lmstudio.ai">LM Studio</a> is a great GUI alternative that uses the same model files.</p>
+
+<h2 id="wrapping-up">Wrapping up</h2>
+
+<p>Running LLMs locally in 2026 is genuinely easy: install Ollama, pick a model that fits your memory, and you have a private, offline, unlimited assistant on your laptop.</p>
+
+<p>My setup: the Avell handles the heavier reasoning work on Pop!_OS, and the MacBook gives me a pocket-sized assistant with no configuration drama — both for free, both private.</p>
+
+<p>The full docs live at <a href="https://docs.ollama.com">docs.ollama.com</a> — it’s well maintained and worth a bookmark.</p>]]></content><author><name>juuh42dias</name></author><category term="llm" /><category term="ollama" /><category term="ai" /><category term="popos" /><category term="macos" /><category term="llm" /><category term="ollama" /><category term="ai" /><category term="popos" /><category term="macos" /><summary type="html"><![CDATA[How to install and use LLM models locally with Ollama on Pop!_OS (Avell A60 MUV with NVIDIA GPU) and macOS Tahoe (MacBook with Apple Silicon) — step by step for both systems]]></summary></entry><entry><title type="html">What is Temporal and how this works?</title><link href="https://blog.juliana.dev/blog/what-is-temporal-and-how-this-works" rel="alternate" type="text/html" title="What is Temporal and how this works?" /><published>2026-06-30T10:00:00-03:00</published><updated>2026-06-30T10:00:00-03:00</updated><id>https://blog.juliana.dev/blog/what-is-temporal-and-how-this-works</id><content type="html" xml:base="https://blog.juliana.dev/blog/what-is-temporal-and-how-this-works"><![CDATA[<h2 id="what-is-temporal-and-how-this-works">What is Temporal and how this works?</h2>
 
 <div style="background: black; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
   <img src="https://images.ctfassets.net/0uuz8ydxyd9p/65SSC5QL4KNrKD8cWZUv6H/c4fc6fe75e17a556325b2bacbc3f801c/Group_1000001864.svg" alt="Temporal" style="max-width: 100%; height: auto;" />
@@ -50,17 +244,13 @@ Before taking anything to production, you can spin up Temporal Server locally wi
 
 <p><strong>Workers</strong> — The processes that host and execute Workflows and Activities. Workers poll the Temporal Server for tasks and execute them.</p>
 
-<figure class="mermaid-diagram">
-<a href="/assets/svg/cc5e53b1.svg"><img src="/assets/svg/cc5e53b1.svg" alt="Mermaid Diagram" /></a>
-</figure>
+<p><img src="/assets/svg/temporal-architecture.svg" alt="Temporal Architecture" style="max-width: 100%; height: auto; display: block; margin: 20px auto;" /></p>
 
 <h2 id="lets-see-some-code">Let’s see some code</h2>
 
 <p>The classic example is a money transfer between two bank accounts. Here’s how it looks with the Temporal Ruby SDK.</p>
 
-<figure class="mermaid-diagram">
-<a href="/assets/svg/ca07365d.svg"><img src="/assets/svg/ca07365d.svg" alt="Mermaid Diagram" /></a>
-</figure>
+<p><img src="/assets/svg/money-transfer-workflow.svg" alt="Money Transfer Workflow" style="max-width: 100%; height: auto; display: block; margin: 20px auto;" /></p>
 
 <p>First, we define the shared data structure and custom errors:</p>
 
@@ -723,42 +913,4 @@ Thanks!</p>
 
 <p><img src="https://thepracticaldev.s3.amazonaws.com/i/s7enneflko6syr2zp99a.png" alt="State Machine code screenshot" /></p>
 
-<p>In the above example, we have different states and events responsible for change these states. <code class="language-plaintext highlighter-rouge">Proposed</code>, <code class="language-plaintext highlighter-rouge">accepted</code>, <code class="language-plaintext highlighter-rouge">rejected</code> and <code class="language-plaintext highlighter-rouge">pending</code> are possible states for a object and the state of an object can change when an event occurs. Pretty similar to the example of water states, right?</p>]]></content><author><name>juuh42dias</name></author><category term="ruby" /><category term="statemachine" /><category term="water" /><category term="ruby" /><category term="statemachine" /><category term="water" /><summary type="html"><![CDATA[Sometimes we need to apply a state in some cases when we want to modify a status of an object. A basic example is water state: gaseous, liquid and solid and the events responsible for change it]]></summary></entry><entry><title type="html">WIP: O que ganhei quando perdi o medo.</title><link href="https://blog.juliana.dev/blog/wip-o-que-ganhei-quando-perdi-o-medo" rel="alternate" type="text/html" title="WIP: O que ganhei quando perdi o medo." /><published>2019-02-16T11:38:05-02:00</published><updated>2019-02-16T11:38:05-02:00</updated><id>https://blog.juliana.dev/blog/wip-o-que-ganhei-quando-perdi-o-medo</id><content type="html" xml:base="https://blog.juliana.dev/blog/wip-o-que-ganhei-quando-perdi-o-medo"><![CDATA[<p><img src="https://cdn-images-1.medium.com/max/1024/1*nPfXzH0jZlIPS8XStEog4A.jpeg" alt="" />Foto da minha mesa de escritório bagunçada mostrando no monitor alguns bloquinhos azuis do GitLab.Aqui vai um breve relato de algumas experiências que vivi e que ainda vivo como uma pessoa que aos poucos foi aprendendo a lidar com o medo.</p>
-
-<p>Bom, não faz muito tempo em que minha vida teve uma mudança um tanto quanto drástica, afinal de contas eu me mudei da minha cidade natal, onde passei a minha vida toda.</p>
-
-<p>Nos tempos em que eu ainda morava na cidade natal, eu vivia uma vida baseada em aceitação de terceiros e tudo que fazia era por e pelos outros, eu nunca fui a prioridade, mas isso era por motivos de eu não me ver feliz e me aceitar como era e como vivia. Viver um teatro era a melhor forma de escapar de mim.</p>
-
-<p>Não é novidade para ninguém a mulher que sou, mas por medo de perder amigos, medo de perder o amor dos familiares, medo de apanhar, medo de sofrer violência física e verbal, medo de ser assassinada, medo de nunca mais ter um emprego, medo de tudo, foi que eu preferi viver o teatro, interpretando um personagem e sempre fugindo de mim, sempre fugindo da verdade.</p>
-
-<p>Eu me escondi por trás de tantas máscaras, eu fingia ser alguém que não era que estava quase acreditando nisto, mas não há como você fugir de si mesma, e quando eu de tanto correr, de tanto fugir eu cheguei a exaustão, foi uma batalha longa, duradoura e incansável (e tudo isso poderia ter sido evitado).</p>
-
-<p>Em tempos de exaustão eu comecei a cultivar em mim a necessidade de me amar e me aceitar como eu sou, eu fui plantando aos poucos um ato daqui, um ato dali (ainda sigo pois é um exercício eterno), e foi quando eu comecei a olhar mais pra mim, apreciar um pouco mais a companhia daquela pessoa que eu tanto odiava, a mim mesma.</p>
-
-<p>Eu vivi cerca de 14 anos sob uma pressão psicológica, um terror constante de que tudo que eu era, era errado, tudo que eu fazia me condenava, e a única solução era me negar, fugir de mim como fiz. Eu deixei de viver por medo, eu deixei de viver como deveria por terror, eu deixei de viver por achar que eu não merecia.</p>
-
-<p>Mas aos poucos, com o meu cultivo eu fui trabalhando melhor nisso e foi quando eu na minha área profissional eu fui crescendo aos poucos, a passos lentos, mas eu fui crescendo (numa visão/perspectiva da Juliana do passado com a Juliana do presente), foi então que consegui uma vaga de emprego na cidade onde moro enquanto escrevo este post.</p>
-
-<p>Com esta mudança de cidade, surgiu em mim um pingo de esperança, pois eu tive a chance de um recomeço, e desta vez eu não poderia mais perder a oportunidade, o meu cultivo estava começando a crescer, eu via que isso iria dar frutos.</p>
-
-<p>Eu ainda me envolvia com velhos amigos dos quais me conhecia antes do cultivo, muitas de suas atitudes foram como geadas na minha plantação, mas fui resistindo aos poucos, cansada, mas seguindo em frente. Breve tempo depois, eu iniciei meu acompanhamento médico, do qual iria me ajudar a seguir o caminho de uma forma mais saudável, ou pelo menos, supervisionada.</p>
-
-<p>Quando finalmente meu cultivo estava começando a florescer da primeira vez, foi quando veio uma tempestade forte, e eu tive que provar as minhas raízes e resistir. Foi então que familiares se recusaram a me respeitar como Juliana, quando perdi meu emprego, quando perdi amizades, quando perdi quase tudo, mas eu não perdi a pessoa mais importante, eu mesma.</p>
-
-<p>Mas eu já imaginava que não seria fácil, porém, eu não havia escolhas a não ser resistir, voltar atrás era impensável, eu não podia voltar pro lugar onde tanto me adoeceu, eu sabia que um retorno seria meu fim.</p>
-
-<p>Eu tive que aprender a lidar e gostar da minha própria companhia, eu tive que aprender a encarar o medo de não conseguir viver dignamente como tal, eu tive que botar a cara a tapa, e foi quando eu comecei a procurar novas vagas e só haviam recusas, enquanto eu tentava inúmeras estratégias…</p>
-
-<p>Foi quando encontrei uma pessoa (hoje minha amiga) que estava procurando de uma parceira para um projeto de verão onde só meninas participaríam. O que me surpeendeu bastante pois eu no meio de tantas recusas, nós conseguimos passar neste projeto, e para a minha intensa felicidade, eram um projeto “gringo”, apesar da falta de confiança no Inglês conquistamos a vaga.</p>
-
-<p>Parte destas situações foram me mostrando que ás vezes temos uma visão muito pessimista de nós mesmas(os), e isto nos faz ter uma localização mais coerente. Posteriormente houve algumas conquistas, vitórias, mas também houve perdas, derrotas (e bastante), contanto tudo isso foi me fortalecendo, como um adubo com outros nutrientes para a minha plantação.</p>
-
-<p>Eu mudei bastante atitude durante esse processo, eu comecei a me conhecer, a descobrir como eu reajo diante de algumas situações e trabalhei bastante nisto, experimentando formas, práticas, métodos variados para saber o que me daria um melhor resultado.</p>
-
-<p>Mas para eu ganhar e ou aprender a ter as atitudes que tenho hoje, foi baseada em bastante perdas, e não sou feliz com isso, não acho que isso precisava ser necessário, mas eu achando ou não (e você que está lendo também) aconteceu, tudo isto ocorreu e foi me levando ao caminho que sigo hoje em dia.</p>
-
-<p>Hoje em dia eu posso pensar e agir de uma forma que amanhã eu posso reprovar fortemente, quem sabe depois de amanhã eu torne a ser como sou hoje, ninguém saberá, o que eu sei é que hoje eu tento viver o amor próprio, e como citado em um versículo bíblico (cristão) “Ame o próximo COMO A TI MESMO”. Não adianta amar o próximo sem se amar e nem se amar sem amar o próximo na mesma proporção.</p>
-
-<p>Então essa foi uma breve história (em WIP sempre) de algumas coisas que aconteceu na minha vida (de uma forma mais abstrata) que relatam o que ganhei quando perdi o medo.</p>
-
-<p><img src="https://medium.com/_/stat?event=post.clientViewed&amp;referrerSource=full_rss&amp;postId=b350c678ebcf" alt="" /></p>]]></content><author><name>juuh42dias</name></author><category term="relato" /><category term="pessoal" /><category term="vida" /><category term="abstrato" /><category term="relato" /><category term="pessoal" /><category term="vida" /><category term="abstrato" /><summary type="html"><![CDATA[Foto da minha mesa de escritório bagunçada mostrando no monitor alguns bloquinhos azuis do GitLab.Aqui vai um breve relato de algumas experiências que vivi e que ainda vivo como uma pessoa que aos poucos foi aprendendo a lidar com o medo.]]></summary></entry></feed>
+<p>In the above example, we have different states and events responsible for change these states. <code class="language-plaintext highlighter-rouge">Proposed</code>, <code class="language-plaintext highlighter-rouge">accepted</code>, <code class="language-plaintext highlighter-rouge">rejected</code> and <code class="language-plaintext highlighter-rouge">pending</code> are possible states for a object and the state of an object can change when an event occurs. Pretty similar to the example of water states, right?</p>]]></content><author><name>juuh42dias</name></author><category term="ruby" /><category term="statemachine" /><category term="water" /><category term="ruby" /><category term="statemachine" /><category term="water" /><summary type="html"><![CDATA[Sometimes we need to apply a state in some cases when we want to modify a status of an object. A basic example is water state: gaseous, liquid and solid and the events responsible for change it]]></summary></entry></feed>
