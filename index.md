@@ -5,7 +5,7 @@ title: The Blog
 
 <p><img src="/assets/images/keynote.jpeg" alt="" /></p>
 
-<h3 id="who-am-i">Who am I</h3>
+<h2 id="who-am-i">Who am I</h2>
 
 <p>Hello! I'm <strong>Juliana Dias</strong> &mdash; a Senior Ruby Software Engineer, Technical Reviewer at <strong>Packt</strong>, and long-time community leader at <strong>Ruby Brasil</strong>. For more than 12 years, I've been building software, mentoring developers, and helping the Ruby community grow across Brazil.</p>
 
@@ -15,7 +15,7 @@ title: The Blog
 
 <p>Whether I'm reviewing a book, hosting a meetup, or connecting developers across Brazil, my mission is the same: <strong>help people grow, share knowledge, and make technology better together.</strong></p>
 
-<h3 id="what-i-do">What I Do</h3>
+<h2 id="what-i-do">What I Do</h2>
 
 <ul>
   <li>&#128142; <strong>Ruby Engineering &amp; Leadership</strong> &mdash; Designing, developing, and maintaining Ruby on Rails systems for high-impact products and teams.</li>
@@ -25,7 +25,7 @@ title: The Blog
   <li>&#128272; <strong>DevSecOps Culture</strong> &mdash; Integrating security and operational excellence across the software lifecycle.</li>
 </ul>
 
-<h3 id="connect-with-me">Connect With Me</h3>
+<h2 id="connect-with-me">Connect With Me</h2>
 
 <ul>
   <li>&#127760; <a href="https://juliana.dev">Personal Website</a></li>
@@ -34,6 +34,6 @@ title: The Blog
   <li>&#128188; <a href="https://linkedin.com/in/juuh42dias">LinkedIn</a></li>
 </ul>
 
-<h3 id="recent-posts">Recent Posts</h3>
+<h2 id="recent-posts">Recent Posts</h2>
 
 <p>Read my latest thoughts on <strong>software craftsmanship</strong>, <strong>sustainable careers</strong>, and <strong>community-driven development</strong> in the <a href="/blog">blog section</a>.</p>
