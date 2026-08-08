@@ -41,6 +41,10 @@ a {
     text-decoration: none;
 }
 
+p a {
+    text-decoration: underline;
+}
+
 a:hover {
     text-decoration: underline;
 }
@@ -50,7 +54,7 @@ a:hover {
     border: 0;
 }
 
-.title h1 {
+h1.title {
     font-size: 1.5em;
 }
 
@@ -407,20 +411,20 @@ small a {
   color: #8250df;
 }
 .highlight .nf, .highlight .fm {
-  color: #8250df;
+  color: #7038c8;
 }
 .highlight .err {
   color: #f6f8fa;
   background-color: #82071e;
 }
 .highlight .c, .highlight .ch, .highlight .cd, .highlight .cm, .highlight .cp, .highlight .cpf, .highlight .c1, .highlight .cs {
-  color: #6e7781;
+  color: #57606a;
 }
 .highlight .gl {
-  color: #6e7781;
+  color: #57606a;
 }
 .highlight .gt {
-  color: #6e7781;
+  color: #57606a;
 }
 .highlight .ni {
   color: #24292f;

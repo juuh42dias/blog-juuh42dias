@@ -17,3 +17,9 @@
     </i>
 </footer>
 
+<script>
+document.querySelectorAll("pre").forEach(function (p) {
+  if (p.scrollWidth > p.clientWidth) p.setAttribute("tabindex", "0");
+});
+</script>
+

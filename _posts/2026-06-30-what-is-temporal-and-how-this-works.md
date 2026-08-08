@@ -9,8 +9,6 @@ canonical_url: https://blog.juliana.dev/what-is-temporal-and-how-this-works
 source: dev.to
 ---
 
-## What is Temporal and how this works?
-
 <div style="background: black; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
   <img src="https://images.ctfassets.net/0uuz8ydxyd9p/65SSC5QL4KNrKD8cWZUv6H/c4fc6fe75e17a556325b2bacbc3f801c/Group_1000001864.svg" alt="Temporal" style="max-width: 100%; height: auto;">
 </div>

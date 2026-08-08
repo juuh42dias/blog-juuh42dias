@@ -14,4 +14,4 @@ Mas apesar de toda essa interação virtual, e toda essa atenção (sendo a trou
 
 Num mundo tão conectado e ao mesmo tempo tão desconectado uns dos outros, sinto que nos falta mais calor humano, sinto que nos falta mais presença. Enfim este é só mais um monólogo de alguém que… Apenas um alguém qualquer que sente falta do calor humano nesse mundo virtual.
 
-![](https://cdn-images-1.medium.com/max/720/1*jM4hPLgSAbUCM4UzJ1GsEw.jpeg)![](https://medium.com/_/stat?event=post.clientViewed&referrerSource=full_rss&postId=4c864129832b)
+![Imagem ilustrativa sobre conversas olhos nos olhos](https://cdn-images-1.medium.com/max/720/1*jM4hPLgSAbUCM4UzJ1GsEw.jpeg)![](https://medium.com/_/stat?event=post.clientViewed&referrerSource=full_rss&postId=4c864129832b)

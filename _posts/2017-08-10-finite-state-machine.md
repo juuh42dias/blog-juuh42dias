@@ -25,7 +25,7 @@ States: From gaseous to liquid
 States: From liquid to solid
 Look at this as a simple example that happens around us. As in many other cases, we can apply it in programming using something called state machine.
 
-![](https://cdn-images-1.medium.com/proxy/1*DRWWhBcOin28vDCiIjGeyg.png)In the above example, we have different states and events responsible for change these states. Proposed, accepted, rejected and pending are possible states for a object and the state of an object can change when an event occurs. Pretty similar to the example of water states, right?
+![State machine diagram with states: proposed, accepted, rejected and pending](https://cdn-images-1.medium.com/proxy/1*DRWWhBcOin28vDCiIjGeyg.png)In the above example, we have different states and events responsible for change these states. Proposed, accepted, rejected and pending are possible states for a object and the state of an object can change when an event occurs. Pretty similar to the example of water states, right?
 
 *Originally published at *[*medium.com*](https://medium.com/@railsgirlsgyn/finite-state-machine-f56d652c1e6f)* on August 10, 2017.*
 

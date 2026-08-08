@@ -11,7 +11,7 @@ layout: compress
     
     <h2>{{ page.title }}</h2>
     <i>{{ page.date | date: "%b %d, %Y" }}</i>
-    <h4 class="subtitle">{{ page.subtitle }}</h4>
+    {% if page.subtitle %}<h4 class="subtitle">{{ page.subtitle }}</h4>{% endif %}
 
     {{ page.content }}
 

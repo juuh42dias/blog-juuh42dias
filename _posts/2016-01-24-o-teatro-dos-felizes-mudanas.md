@@ -20,4 +20,4 @@ Obs: Sim, apenas mais um monólogo exposto.
 
 Em busca de novos horizontes.
 
-![](https://cdn-images-1.medium.com/max/1024/1*YXom_mtlU6eqPNAVDS5iZw.jpeg)![](https://medium.com/_/stat?event=post.clientViewed&referrerSource=full_rss&postId=710ba97f564c)
+![Em busca de novos horizontes](https://cdn-images-1.medium.com/max/1024/1*YXom_mtlU6eqPNAVDS5iZw.jpeg)![](https://medium.com/_/stat?event=post.clientViewed&referrerSource=full_rss&postId=710ba97f564c)

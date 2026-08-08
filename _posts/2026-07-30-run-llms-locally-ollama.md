@@ -9,8 +9,6 @@ canonical_url: https://blog.juliana.dev/run-llms-locally-ollama
 source: dev.to
 ---
 
-## Run LLM models locally with Ollama: Pop!_OS and macOS
-
 You know when you're working on something and you need a quick answer — "what's the syntax for this again?", "rewrite this error message", "explain this stack trace" — and you end up pasting your code into a browser tab, sending it to some company's server?
 
 What if you could run a capable LLM on your own machine? No login, no internet, no data leaving your laptop, no pay-per-token. Your code never leaves your hard drive. And on modern hardware it's surprisingly fast.

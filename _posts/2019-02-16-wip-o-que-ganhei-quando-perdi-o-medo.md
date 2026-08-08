@@ -8,7 +8,7 @@ canonical_url: https://medium.com/@juuh42dias/wip-o-que-ganhei-quando-perdi-o-me
 source: medium
 ---
 
-![](https://cdn-images-1.medium.com/max/1024/1*nPfXzH0jZlIPS8XStEog4A.jpeg)Foto da minha mesa de escritório bagunçada mostrando no monitor alguns bloquinhos azuis do GitLab.Aqui vai um breve relato de algumas experiências que vivi e que ainda vivo como uma pessoa que aos poucos foi aprendendo a lidar com o medo.
+![Foto da minha mesa de escritório bagunçada mostrando no monitor alguns bloquinhos azuis do GitLab.](https://cdn-images-1.medium.com/max/1024/1*nPfXzH0jZlIPS8XStEog4A.jpeg)Foto da minha mesa de escritório bagunçada mostrando no monitor alguns bloquinhos azuis do GitLab.Aqui vai um breve relato de algumas experiências que vivi e que ainda vivo como uma pessoa que aos poucos foi aprendendo a lidar com o medo.
 
 Bom, não faz muito tempo em que minha vida teve uma mudança um tanto quanto drástica, afinal de contas eu me mudei da minha cidade natal, onde passei a minha vida toda.
 
