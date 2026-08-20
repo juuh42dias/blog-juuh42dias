@@ -1,6 +1,6 @@
 ---
 layout: default
-title: The Blog
+title: Digital Garden
 ---
 
 <p><img src="/assets/images/keynote.jpeg" alt="Juliana Dias apresentando um keynote em um evento" /></p>
