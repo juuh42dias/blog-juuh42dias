@@ -307,6 +307,8 @@ Running durable workflows in 2026 is genuinely a choice, not a chore: add a gem 
 
 My setup: for a Rails app with Active Job + Solid Queue + SQLite, AJ/DC is the obvious first try — same mental model, zero new infra. For cross-service money movement or long-lived AI pipelines, I'd still reach for Temporal.
 
+> Note: part of that recommendation is maturity — AJ/DC is at 0.1.0 as of this writing, very new, versus Temporal's 9 years in production. Of course this solution will grow and evolve fast.
+
 The docs worth bookmarking: [github.com/palkan/ajdc](https://github.com/palkan/ajdc) (small, readable, start with the README) and [docs.temporal.io](https://docs.temporal.io) + [temporal.io/how-it-works](https://temporal.io/how-it-works) for the full picture.
 
 Want to run both sides yourself? The companion repo has the full demo — AJ/DC jobs on Rails + PostgreSQL and Temporal workflows in Ruby, with a verify script and step-by-step instructions: [github.com/juuh42dias/ajdc-vs-temporalio](https://github.com/juuh42dias/ajdc-vs-temporalio).
