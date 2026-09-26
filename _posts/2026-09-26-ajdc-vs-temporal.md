@@ -111,15 +111,25 @@ If you've ever debugged a stuck Solid Queue job by digging through logs, this fe
 
 **Timeouts / timers — wait for 3 seconds or 3 months**
 
-This is my favorite parallel. In Temporal you'd write:
+This is my favorite parallel. In Temporal with the Ruby SDK you'd write:
 
-```typescript
-async function startTrial(user: string) {
-  while (!(await hasUpgraded(user))) {
-    await sendReminderEmail(user);
-    await sleep("30 days");
-  }
-}
+```ruby
+class TrialWorkflow < Temporalio::Workflow::Definition
+  def execute(user)
+    until Temporalio::Workflow.execute_activity(
+      HasUpgradedActivity,
+      user,
+      start_to_close_timeout: 10
+    )
+      Temporalio::Workflow.execute_activity(
+        SendReminderEmailActivity,
+        user,
+        start_to_close_timeout: 10
+      )
+      Temporalio::Workflow.sleep(30 * 24 * 60 * 60, summary: 'wait 30 days')
+    end
+  end
+end
 ```
 
 In AJ/DC you declare it on the step:
