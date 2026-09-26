@@ -311,4 +311,4 @@ The docs worth bookmarking: [github.com/palkan/ajdc](https://github.com/palkan/a
 
 Want to run both sides yourself? The companion repo has the full demo — AJ/DC jobs on Rails + PostgreSQL and Temporal workflows in Ruby, with a verify script and step-by-step instructions: [github.com/juuh42dias/ajdc-vs-temporalio](https://github.com/juuh42dias/ajdc-vs-temporalio).
 
-If you try AJ/DC on Rails 8.1, tell me how the `WakeJob` + `HousekeepingJob` recurring setup went — that's the one piece I'd love to see extracted into a generator default next.
+If you try AJ/DC on Rails 8.1, tell me how the `WakeJob` + `HousekeepingJob` recurring setup went.
