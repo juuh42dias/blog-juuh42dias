@@ -19,12 +19,22 @@ bin/rails db:migrate
 <span class="no">ImportJob</span><span class="p">.</span><span class="nf">workflow_runs</span><span class="p">.</span><span class="nf">failed</span><span class="p">.</span><span class="nf">at_step</span><span class="p">(</span><span class="ss">:process</span><span class="p">)</span>
 <span class="no">ImportJob</span><span class="p">.</span><span class="nf">workflow_runs</span><span class="p">.</span><span class="nf">live</span> <span class="c1"># enqueued, running, waiting, awaiting</span>
 <span class="no">ImportJob</span><span class="p">.</span><span class="nf">workflow_runs</span><span class="p">.</span><span class="nf">stuck_for</span><span class="p">(</span><span class="mi">1</span><span class="p">.</span><span class="nf">hour</span><span class="p">)</span>
-</code></pre></div></div><p>If you’ve ever debugged a stuck Solid Queue job by digging through logs, this feels like a superpower.</p><p><strong>Timeouts / timers — wait for 3 seconds or 3 months</strong></p><p>This is my favorite parallel. In Temporal you’d write:</p><div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="kd">function</span> <span class="nf">startTrial</span><span class="p">(</span><span class="nx">user</span><span class="p">:</span> <span class="kr">string</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">while </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="k">await</span> <span class="nf">hasUpgraded</span><span class="p">(</span><span class="nx">user</span><span class="p">)))</span> <span class="p">{</span>
-    <span class="k">await</span> <span class="nf">sendReminderEmail</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span>
-    <span class="k">await</span> <span class="nf">sleep</span><span class="p">(</span><span class="dl">"</span><span class="s2">30 days</span><span class="dl">"</span><span class="p">);</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+</code></pre></div></div><p>If you’ve ever debugged a stuck Solid Queue job by digging through logs, this feels like a superpower.</p><p><strong>Timeouts / timers — wait for 3 seconds or 3 months</strong></p><p>This is my favorite parallel. In Temporal with the Ruby SDK you’d write:</p><div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">TrialWorkflow</span> <span class="o">&lt;</span> <span class="no">Temporalio</span><span class="o">::</span><span class="no">Workflow</span><span class="o">::</span><span class="no">Definition</span>
+  <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">until</span> <span class="no">Temporalio</span><span class="o">::</span><span class="no">Workflow</span><span class="p">.</span><span class="nf">execute_activity</span><span class="p">(</span>
+      <span class="no">HasUpgradedActivity</span><span class="p">,</span>
+      <span class="n">user</span><span class="p">,</span>
+      <span class="ss">start_to_close_timeout: </span><span class="mi">10</span>
+    <span class="p">)</span>
+      <span class="no">Temporalio</span><span class="o">::</span><span class="no">Workflow</span><span class="p">.</span><span class="nf">execute_activity</span><span class="p">(</span>
+        <span class="no">SendReminderEmailActivity</span><span class="p">,</span>
+        <span class="n">user</span><span class="p">,</span>
+        <span class="ss">start_to_close_timeout: </span><span class="mi">10</span>
+      <span class="p">)</span>
+      <span class="no">Temporalio</span><span class="o">::</span><span class="no">Workflow</span><span class="p">.</span><span class="nf">sleep</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="mi">24</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span> <span class="ss">summary: </span><span class="s1">'wait 30 days'</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
 </code></pre></div></div><p>In AJ/DC you declare it on the step:</p><div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">License::LifecycleJob</span> <span class="o">&lt;</span> <span class="no">ApplicationJob</span>
   <span class="kp">include</span> <span class="no">ActiveJob</span><span class="o">::</span><span class="no">Durable</span>
 
