@@ -1,4 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://blog.juliana.dev/blog/feed.atom" rel="self" type="application/atom+xml" /><link href="https://blog.juliana.dev/" rel="alternate" type="text/html" /><updated>2026-09-26T19:43:03-03:00</updated><id>https://blog.juliana.dev/blog/feed.atom</id><title type="html">Juliana Dias</title><subtitle>Ruby Software Craftswoman | Admin at t.me/RubyBrasil | She/Ela | Made in Goiás</subtitle><author><name>juuh42dias</name></author><entry><title type="html">AJDC vs Temporal: durable execution for Rails and beyond</title><link href="https://blog.juliana.dev/blog/ajdc-vs-temporal" rel="alternate" type="text/html" title="AJDC vs Temporal: durable execution for Rails and beyond" /><published>2026-09-26T10:00:00-03:00</published><updated>2026-09-26T10:00:00-03:00</updated><id>https://blog.juliana.dev/blog/ajdc-vs-temporal</id><content type="html" xml:base="https://blog.juliana.dev/blog/ajdc-vs-temporal"><![CDATA[<p>You know when you’re building an application and you have a sequence of steps that need to happen? Like: charge the credit card, send the email, update the database. If one of those steps fails, what happens? Do you retry? Do you rollback? Who keeps track of where you left off?</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://blog.juliana.dev/blog/feed.atom" rel="self" type="application/atom+xml" /><link href="https://blog.juliana.dev/" rel="alternate" type="text/html" /><updated>2026-11-20T21:31:00-03:00</updated><id>https://blog.juliana.dev/blog/feed.atom</id><title type="html">Juliana Dias</title><subtitle>Ruby Software Craftswoman | Admin at t.me/RubyBrasil | She/Ela | Made in Goiás</subtitle><author><name>juuh42dias</name></author><entry><title type="html">Fragmentada</title><link href="https://blog.juliana.dev/blog/fragmentada" rel="alternate" type="text/html" title="Fragmentada" /><published>2026-11-20T21:00:00-03:00</published><updated>2026-11-20T21:00:00-03:00</updated><id>https://blog.juliana.dev/blog/fragmentada</id><content type="html" xml:base="https://blog.juliana.dev/blog/fragmentada"><![CDATA[<p><img src="/assets/images/fragmentada-janela.jpg" alt="Mulher sentada na janela de um trem, olhando para fora, em preto e branco." /></p>
+
+<p><em>Foto: <a href="https://unsplash.com/photos/X_znrYlFBks">Jayakumar Ananthan</a> no Unsplash (CC0).</em></p>
+
+<p>Existe uma coisa curiosa que está arrendando um espaço na minha cabeça.</p>
+
+<p>Com o hábito de viajar mais e ficar um tempo em alguns lugares, é o fato de criarmos micro hábitos, micro rotinas e nos descobrirmos naqueles lugares.</p>
+
+<p>A gente acaba por se descobrir gostando de uma comida específica, uma bebida específica, um lugar específico e, com isso, a gente acaba se tornando um pouco mais fragmentada.</p>
+
+<p><img src="/assets/images/fragmentada-mapa.jpg" alt="Mapa com pinos coloridos marcando lugares." /></p>
+
+<p><em>Foto: <a href="https://unsplash.com/photos/vfzfavUZmfc">delfi de la Rua</a> no Unsplash (CC0).</em></p>
+
+<p>Tenho por mim que isto é algo que se torna irreversível e nos transforma para sempre.
+É um sentimento estranho descobrir novas personalidades, ou um pouco mais de você em outros ambientes, outras rotinas, com outras pessoas.</p>
+
+<p><img src="/assets/images/fragmentada-trem.jpg" alt="Pessoa lendo ao lado da janela de um trem." /></p>
+
+<p><em>Foto: <a href="https://unsplash.com/photos/vdyeDY-_ufw">Ana Martin</a> no Unsplash (CC0).</em></p>
+
+<p>Tal qual aprender que uma língua nova muda sua forma de agir, de se expressar, viajar e criar rotinas naquele lugar também te faz aprender muito mais sobre si mesma.</p>]]></content><author><name>juuh42dias</name></author><category term="reflexoes" /><category term="viagem" /><category term="identidade" /><category term="reflexoes" /><category term="viagem" /><category term="identidade" /><summary type="html"><![CDATA[Sobre micro hábitos, micro rotinas e como viajar nos transforma em pessoas um pouco mais fragmentadas.]]></summary></entry><entry><title type="html">AJDC vs Temporal: durable execution for Rails and beyond</title><link href="https://blog.juliana.dev/blog/ajdc-vs-temporal" rel="alternate" type="text/html" title="AJDC vs Temporal: durable execution for Rails and beyond" /><published>2026-09-26T10:00:00-03:00</published><updated>2026-09-26T10:00:00-03:00</updated><id>https://blog.juliana.dev/blog/ajdc-vs-temporal</id><content type="html" xml:base="https://blog.juliana.dev/blog/ajdc-vs-temporal"><![CDATA[<p>You know when you’re building an application and you have a sequence of steps that need to happen? Like: charge the credit card, send the email, update the database. If one of those steps fails, what happens? Do you retry? Do you rollback? Who keeps track of where you left off?</p>
 
 <p>In my <a href="/blog/what-is-temporal-and-how-this-works">last post about Temporal</a> we looked at one answer: a durable execution platform that acts like an autosave for your application state. If something fails mid-execution, Temporal remembers exactly where it was and picks up from there.</p>
 
@@ -1217,9 +1238,4 @@ https://ss64.com/mac/log.html</p>]]></content><author><name>juuh42dias</name></a
 
 <ul>
   <li>14/08/2019</li>
-</ul>]]></content><author><name>juuh42dias</name></author><summary type="html"><![CDATA[Deixa eu desabafar sobre um sintoma da minha vida como deva: Depois de um certo tempo trabalhando...]]></summary></entry><entry><title type="html">Juliana Dias is creating Open Source Software with social impact</title><link href="https://blog.juliana.dev/blog/juliana-dias-is-creating-open-source-software-with-social-impact" rel="alternate" type="text/html" title="Juliana Dias is creating Open Source Software with social impact" /><published>2019-07-10T22:56:43-03:00</published><updated>2019-07-10T22:56:43-03:00</updated><id>https://blog.juliana.dev/blog/juliana-dias-is-creating-open-source-software-with-social-impact</id><content type="html" xml:base="https://blog.juliana.dev/blog/juliana-dias-is-creating-open-source-software-with-social-impact"><![CDATA[<p>Folks, I’ve started dedicating my Sundays especially to coding on open source projects with social impact. If you want to support me by paying for a mug of coffee or two, you can do so on Patreon: <img src="https://www.patreon.com/juuh42dias" alt="Support me on Patreon" /></p>
-
-<p>I’ll be very grateful for your support &lt;3
-Thanks!</p>
-
-<p><img src="/assets/images/juliana.jpg" alt="Juliana Dias" /></p>]]></content><author><name>juuh42dias</name></author><summary type="html"><![CDATA[Folks, I've started dedicating my Sundays especially to coding on open source projects with social...]]></summary></entry></feed>
+</ul>]]></content><author><name>juuh42dias</name></author><summary type="html"><![CDATA[Deixa eu desabafar sobre um sintoma da minha vida como deva: Depois de um certo tempo trabalhando...]]></summary></entry></feed>
