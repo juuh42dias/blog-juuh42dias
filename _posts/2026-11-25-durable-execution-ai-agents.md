@@ -58,23 +58,28 @@ The results are the part I'd put in front of every team building agents:
 
 The performance numbers are also more grounded than the usual "durable execution is free" pitch. In the paper's local environment, a real LLM interaction averaged 705 ms; a mock LLM averaged 81 ms. The durability layer added about 81 ms per interaction, roughly 11% of end-to-end latency with a real model. That's a small tax relative to inference, but it's not zero, and the paper says it can accumulate in workflows with many state transitions.
 
-The paper is honest about the tradeoffs: you have to operate durable execution infrastructure, you have to keep workflow code deterministic, and you have to accept the extra latency. It also draws a useful line between durable execution and sagas. Sagas coordinate compensating actions when a business transaction fails logically. They don't recover the state of a worker that crashed mid-step. Durable execution is about continuity of execution; you often need both. The paper also flags dynamic replay/branching, log compaction, and a comparative framework analysis as future work.
+The paper is honest about the tradeoffs: you have to operate durable execution infrastructure, you have to keep workflow code deterministic, and you have to accept the extra latency. The talk adds the operational costs: a Worker fleet to run, versioning discipline for long-lived Executions, and the learning curve around replay and the primitives. The ROI is the code you stop maintaining: hand-rolled state machines and status columns, reconciliation cron jobs, and ad-hoc retry and backoff code. The paper also draws a useful line between durable execution and sagas. Sagas coordinate compensating actions when a business transaction fails logically. They don't recover the state of a worker that crashed mid-step. Durable execution is about continuity of execution; you often need both. The paper also flags dynamic replay/branching, log compaction, and a comparative framework analysis as future work.
 
 And the pattern is not Temporal-only. The paper maps the same primitives to Azure Durable Functions and AWS Step Functions. Temporal was chosen for the reference implementation because it's open source and self-hostable, which makes the experiment reproducible without cloud accounts.
 
 ## From the paper to the talk
 
-At RUG::B, I framed the talk around the same problem: handling network failures, timeouts, and half-baked processes is a constant struggle in distributed systems. Temporal's promise is that you can write code as if infrastructure failures don't exist, because the platform owns the retries, timers, and state transitions.
+At RUG::B, I framed the talk around the same problem: how to get crash-proof execution without hand-rolled state machines and retry code. The talk is explicitly about durable execution, not "another job runner."
 
-The paper gives that promise a formal shape for AI agents. The talk gives the mechanics:
+The paper gives that promise a formal shape for AI agents. The talk gives the mechanics I keep coming back to:
 
-- The **Workflow** is the agent loop. It decides what to do next, but it doesn't call the model or the tools directly.
-- The **Activities** are the model calls and tool executions. They can fail, retry, and time out independently.
-- The **Server** keeps the event history. The **Workers** execute the code. If a worker dies, another one replays the history and continues from the first step that has no recorded result.
+- **Workflow vs Activity:** the Workflow is deterministic orchestration; the Activity is the retried side effect. The selection rule I use is Activity by default, Workflow only for orchestration.
+- **Event History and replay:** the append-only log is the source of truth. Replay re-runs Workflow code and matches Commands against recorded Events; Activity results are reused, not recomputed.
+- **The guarantees:** exactly-once completion, at-least-once Activities (so idempotency is required), and state recovery after Worker or Service failures.
+- **The operational surface:** retries and timeouts are configuration, not code. Signals, Queries, and Updates handle external interaction; Continue-As-New bounds Event History; Child Workflows partition work; Worker Versioning handles deploys while Executions are running.
 
-The price is the same one the paper lists: determinism. No `Time.now`, no random values, no direct HTTP calls inside the workflow. Those go into activities or workflow APIs. It feels restrictive until you remember what you're buying: a run that can survive a crash, a deploy, or a three-day wait without losing its place.
+Retries are configuration: Activity attempts are unlimited by default, `non_retryable_error_types` make permanent failures fail fast, and timeouts bound each attempt and the total duration.
 
-The other thing the runtime can't do for you is make an external side effect exactly once. If a tool charges a card and the response is lost, a retry can charge again. The paper is explicit that activities modifying external state must be idempotent. Durable execution gives you the recorded result and the recovery point; idempotency keys are still your job.
+The Service never runs your code; only Workers do. If a worker dies, another one replays the history and continues from the first step that has no recorded result. The talk's code is Ruby, not Python: a `MoneyTransferWorkflow` with `Withdraw`, `Deposit`, and `Refund` activities, a retry policy with `non_retryable_error_types`, and a `begin/rescue ActivityError` that runs the compensating Refund. The shape is the same as the paper's reference implementation: orchestration in the workflow, side effects in activities, recovery from history.
+
+The price is the same one the paper lists: determinism. No `Time.now`, no random values, no direct HTTP calls inside the workflow. Those go into activities or workflow APIs. The determinism rule is not a style guide. A non-deterministic call can fail a running Execution with a non-determinism error. It feels restrictive until you remember what you're buying: a run that can survive a crash, a deploy, or a three-day wait without losing its place.
+
+That exactly-once guarantee is about the workflow's completion, not each external side effect. If a tool charges a card and the response is lost, a retry can charge again. The paper is explicit that activities modifying external state must be idempotent. Durable execution gives you the recorded result and the recovery point; idempotency keys are still your job.
 
 ## The Temporal side, if you want the internals
 
@@ -82,7 +87,7 @@ I wrote about the Temporal architecture before: workflows, activities, workers, 
 
 [What is Temporal and how this works?](https://blog.juliana.dev/blog/what-is-temporal-and-how-this-works)
 
-The paper's reference implementation is Python; the mental model is the same. The loop is a workflow. The model call and each tool call are activities. The event history is the autosave. The difference is that the paper measures what happens when you kill the process at the worst possible moment.
+The paper's reference implementation is Python; the talk's is Ruby. The mental model is the same. The loop is a workflow. The model call and each tool call are activities. The event history is the autosave, and it's also the audit trail: the Web UI and CLI show inputs, outputs, retries, and timestamps for each Execution. The difference is that the paper measures what happens when you kill the process at the worst possible moment.
 
 ## What I'd check in your own architecture
 
@@ -95,7 +100,9 @@ A few questions I'd ask before adding durable execution:
 - If you deploy while a run is open, does it resume or restart?
 - If a retry happens, is the side effect idempotent?
 
-Not every agent needs Temporal. A short, read-only agent that finishes inside one request can stay in-process. A bounded background task with safe retries can live on a queue. The threshold changes when the run waits for a person, crosses deploys, spends real tokens, or writes to external systems. At that point, durable execution stops being infrastructure trivia and becomes part of the product.
+One more distinction from the talk: a webhook is an HTTP request you have to make durable yourself. A Signal is a first-class, durable message that goes into Event History and is replay-safe. Queries read state without writing history; Updates are synchronous, validated writes. If your agent waits for a human, that difference matters.
+
+The talk's fit list is explicit: multi-step business processes, long waits, sagas, bounded fan-out, AI agents with human checkpoints, and systems that need an audit trail. It's not a Sidekiq replacement for every job, and it's not built for sub-second high-throughput streams. Not every agent needs Temporal. A short, read-only agent that finishes inside one request can stay in-process. A bounded background task with safe retries can live on a queue. The threshold changes when the run waits for a person, crosses deploys, spends real tokens, or writes to external systems. At that point, durable execution stops being infrastructure trivia and becomes part of the product.
 
 The paper's contribution isn't a new agent framework. It's a precise way to talk about the problem, plus a reference implementation and failure-injection evidence: an agent loop is a distributed system. Once you treat it like one, the questions change from "which model?" to "where does the state live, and what happens when the process dies?"
 
